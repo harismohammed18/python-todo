@@ -5,15 +5,29 @@ This module initializes the FastAPI application with MongoDB integration,
 manages the application lifecycle (startup/shutdown), and includes all API routes.
 """
 
+import logging
+import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 
 from src.api.user_routes import router
 from src.config.db import Database as MongoDB
 
-MONGO_URL = "mongodb://localhost:27017"
-DB_NAME = "fastapi_oop"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+load_dotenv()
+
+MONGO_URL = os.getenv("MONGO_URL")
+DB_NAME = os.getenv("DB_NAME")
+
+logger.info("Application initializing with DB_NAME: %s", DB_NAME)
 
 
 @asynccontextmanager
@@ -36,10 +50,14 @@ async def lifespan(app_instance: FastAPI):
         - Closes MongoDB connection gracefully
     """
     # Startup
+    logger.info("Application startup: Initializing MongoDB connection")
     app_instance.state.mongodb = MongoDB(MONGO_URL, DB_NAME)
+    logger.info("MongoDB connection established successfully")
     yield
     # Shutdown
+    logger.info("Application shutdown: Closing MongoDB connection")
     await app_instance.state.mongodb.close_connection()
+    logger.info("MongoDB connection closed")
 
 
 app = FastAPI(
@@ -69,4 +87,4 @@ app.include_router(router)
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

@@ -8,7 +8,7 @@ It includes request/response models with MongoDB ObjectId support and field vali
 from typing import Optional
 
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class User(BaseModel):
@@ -28,12 +28,15 @@ class User(BaseModel):
         ValidationError: If name or email are missing or invalid
     """
 
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_encoders={ObjectId: str},
+    )
+
     id: Optional[str] = Field(None, alias="_id")
     name: str = Field(..., min_length=1, description="User's full name")
-    email: str = Field(..., pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", description="User's email address")
-
-    class Config:
-        """Pydantic model configuration for MongoDB document handling."""
-
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
+    email: str = Field(
+        ...,
+        pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+        description="User's email address",
+    )
