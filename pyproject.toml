@@ -1,0 +1,24 @@
+[project]
+name = "fastapi-todo-app"
+version = "0.1.0"
+description = "sample todo app to learn fastapi and python"
+authors = [
+    {name = "haris_mohammed",email = "harismohammed18@gmail.com"}
+]
+readme = "README.md"
+requires-python = "3.13.3"
+dependencies = [
+    "fastapi[standard] (>=0.125.0,<0.126.0)",
+    "motor (>=3.7.1,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "pylint (>=4.0.4,<5.0.0)"
+]
